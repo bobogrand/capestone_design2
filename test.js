@@ -1,6 +1,9 @@
 var http = require('http');
 var mysql = require('mysql');
 var url = require('url');
+var express = require('express');
+app = express();
+
 
 // connect to mysql db
 var connection = mysql.createConnection({
@@ -39,24 +42,39 @@ server = http.createServer(function (req, res){
 		r.value = query.value;
 		r.ip = query.ip;
 	}
+
+	//insert data
 	var q = connection.query('insert into sensors set ?', r, function(er, rows, cols) {
-		console.log("insert : "+ r.value);
+		console.log("insert into sensors set  "+ r.value);
 	});
 
 
 	res.writeHead(200,{'content-Type':'text/html'});
-	res.end('Hello World\n');
+
+	connection.query('select * from sensors', function(err,rows,fields){
+		var data = "no data";
+		if(!err){
+			data = "<html><head>capestone design</head>";
+			data += "<h1>temperature</h1>";
+			data += "<table border =\"1\">";
+//			data += "<tr><th>id</th><th>seq</th><th>device</th><th>unit</th><th>type</th><th>value</th><th>ip</th><th>time</th>		</tr>";
+			data += "<tr><th>seq</th> <th>temperature</th> <th>ip</th></tr>";
+			for(var i in rows){
+
+				data += "<tr>";
+				data += "<td>" + rows[i].id +"</td>";
+				data += "<td>" + rows[i].value+"</td>";
+				data += "<td>" + rows[i].time+"</td>";
+				data += "</tr>";
+			}
+			data += "</table></html>";
+		}
+			
+		res.end(data);
+	});
+
+
+
 }).listen(port,'');
 
 
-/*
-//select and show all data
-connection.query('select * from sensors', function(er,result,fields){
-
-	console.log("result:");
-	console.log(result);
-	console.log("fields:");
-	console.log(fields);
-});
-
-*/
